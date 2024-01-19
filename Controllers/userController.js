@@ -1,6 +1,8 @@
 const userModel = require('../Models/user')
 const bcrypt = require('bcrypt')
 
+
+
 const {createToken}=require("../JWT")
 //registration
 const register = async (req, res, next) => {
@@ -8,7 +10,7 @@ const register = async (req, res, next) => {
 
   try {
     const hash = await bcrypt.hash(password, 15);
-
+    
     const existingUser=await userModel.findOne({ $or: [{ username }, { email }] })
     if(existingUser)
     {
@@ -83,9 +85,9 @@ const login = async (req, res, next) => {
 };
 
   
-    //profile
+//profile
 const profile = async (req, res, next) => {
-  try {
-  } catch (err) {}
+  res.send("profile")
+  console.log("you are in the profile")
 }
 module.exports = { profile, login, register }
