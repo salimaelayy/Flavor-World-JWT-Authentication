@@ -1,6 +1,7 @@
 const userModel = require('../Models/user')
 const bcrypt = require('bcrypt')
 
+const {createToken}=require("../JWT")
 //registration
 const register = async (req, res, next) => {
   const { username, password, email } = req.body;
@@ -38,27 +39,40 @@ const login = async (req, res, next) => {
   const { username, password } = req.body;
 
   try {
-    const userLoggedIn = await userModel.findOne({username: username});
+    const userLoggedIn = await userModel.findOne({ username: username });
 
-    //checking username
-    if (!userLoggedIn) 
-    {
-      return res.status(400).json({ error: "User doesn't exist" })
+    if (!userLoggedIn) {
+      return res.status(400).json({ error: "User doesn't exist" });
+}
+    // checking password
+    const dbPassword = userLoggedIn.password;
+    console.log("Password:", password);
+    console.log("DB Password:", dbPassword);
+
+    // Ensure that both password and dbPassword are valid and non-empty
+    if (!password || !dbPassword) {
+      return res.status(400).json({ error: "Invalid password or hashed password" });
     }
-    //checking password
-    const dbPassword=userLoggedIn.password
-    bcrypt.compare(dbPassword,password)
-    .then((match)=>{
-      if(!match)
-      {
-        res.status(400).json({ error: "Username or password are incorrect" });
-      }
-      else
-      {
-        res.json("You Are Logged In" )
-      }
-    })
-    
+    // compare the plain text password with the hashed password
+    console.log("Password:", password);
+
+    const match = await bcrypt.compare(password, dbPassword);
+
+
+    if (!match) {
+      return res.status(400).json({ error: "Username or password are incorrect" });
+    }
+
+    // create and send JWT token in a cookie
+    const accessToken = createToken(userLoggedIn);
+    res.cookie("access-token", accessToken, {
+      maxAge: 900000, // 15 minutes (in milliseconds)
+      httpOnly: true,
+    });
+
+    // send a success response
+    res.status(200).json({ message: "You are logged in" });
+
   } catch (error) {
     console.error(error);
     return res.status(500).json({
@@ -66,9 +80,10 @@ const login = async (req, res, next) => {
       message: 'Error during login',
     });
   }
-}
+};
 
-//profile
+  
+    //profile
 const profile = async (req, res, next) => {
   try {
   } catch (err) {}
