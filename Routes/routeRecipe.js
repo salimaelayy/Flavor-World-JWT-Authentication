@@ -8,11 +8,10 @@ const {
   validate,
 } = require('../MiddleWares/validators')
 
-router.get('/', recipeController.readAll)
-router.get('/readbyid/:id', recipeController.readById)
-router.get('/readbytitle', recipeController.readByTitle)
-router.post('/create', recipeController.create)
-router.put('/update/:id', recipeController.updateById)
-router.delete('/delete/:id', recipeController.deleteById)
-
+router.get('/', validateToken, recipeController.readAll);
+router.get('/readbyid/:id', validateToken, recipeController.readById);
+router.get('/readbytitle', validateToken, recipeController.readByTitle);
+router.post('/create', validateToken, recipeController.create);
+router.put('/update/:id', validateToken, recipeController.updateById);
+router.delete('/delete/:id', validateToken, recipeController.deleteById);
 module.exports = router
