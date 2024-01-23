@@ -39,10 +39,10 @@ const readById = async (req, res, next) => {
 const readByTitle = async (req, res, next) => {
   try {
     const { title } = req.query
-    console.log('Received request with title:', recipeTitle)
+    console.log('Received request with title:', title)
 
     // Use findOne instead of findById for searching by name
-    const response = await RecipeModel.findOne({ title: recipeTitle })
+    const response = await RecipeModel.findOne({ title: title })
 
     if (!response) {
       res.status(404).json({ error: 'Recipe not found' })
@@ -64,8 +64,7 @@ const create = async (req, res, next) => {
     author,
     origin,
     ingredients,
-    steps,
-    file: { filename },
+    steps
   } = req.body
   try {
     const newRecipe = await RecipeModel.create({
@@ -74,8 +73,7 @@ const create = async (req, res, next) => {
       author,
       origin,
       ingredients,
-      steps,
-      image: req.file ? req.file.filename : undefined,
+      steps
     })
 
     res.status(201).json({
@@ -94,25 +92,27 @@ const create = async (req, res, next) => {
 //update single recipe using id
 const updateById = async (req, res, next) => {
   try {
-    const recipeId = req.params.id
-    //verify that server got the id
-    console.log('Received request with ID:', recipeId)
+    const recipeId = req.params.id;
+    const updatedData = req.body;
 
-    console.log('Update data:', req.body)
-    const { title, category, author, origin, ingredients, steps } = req.body
+    // Verify that server got the id and updated data
+    console.log('Received request with ID:', recipeId);
+    console.log('Updated data:', updatedData);
 
-    const response = await RecipeModel.findByIdAndUpdate(recipeId, {
-      $set: updateRecipe,
-    })
+    const response = await RecipeModel.findByIdAndUpdate(recipeId, updatedData, { new: true });
+
     if (!response) {
-      return res.status(404).json({ error: 'Recipe not found' })
+      res.status(404).json({ error: 'Recipe not found' });
+      return;
     }
 
-    res.json({ message: 'Recipe is updated successfully', data: response })
+    res.json({ message: 'Recipe is updated successfully', data: response });
   } catch (error) {
-    res.status(500).json({ error: 'An error occurred' })
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred' });
   }
-}
+};
+
 //delete single recipe using id
 
 const deleteById = async (req, res, next) => {
@@ -124,10 +124,12 @@ const deleteById = async (req, res, next) => {
     const response = await RecipeModel.findByIdAndDelete(recipeId)
     if (!response) {
       res.status(404).json({ error: 'Recipe not found' })
+      
     }
 
     res.json({ message: 'Recipe is deleted successfully', data: response })
   } catch (error) {
+    console.error(error); 
     res.status(500).json({ error: 'An error occurred' })
   }
 }

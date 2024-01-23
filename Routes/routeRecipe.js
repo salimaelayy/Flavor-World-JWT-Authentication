@@ -1,6 +1,8 @@
 const express = require('express')
 const router = express.Router()
 const recipeController = require('../Controllers/recipeController')
+const { validateToken } = require('../MiddleWares/tokenValidation')
+
 const {
   validateRecipeInputEmpty,
   validate,
